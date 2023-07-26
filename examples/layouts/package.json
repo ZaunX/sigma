@@ -8,9 +8,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "graphology": "^0.23.0",
+    "graphology": "^0.23.2",
     "graphology-layout": "^0.4.1",
-    "graphology-layout-forceatlas2": "^0.8.1",
+    "graphology-layout-forceatlas2": "^0.8.2",
     "sigma": "latest"
   },
   "devDependencies": {
