@@ -3,7 +3,7 @@
  * ========
  * @module
  */
-import Graph from "graphology-types";
+import Graph, { Attributes } from "graphology-types";
 import extend from "@yomguithereal/helpers/extend";
 
 import Camera from "./core/camera";
@@ -53,7 +53,11 @@ const Y_LABEL_MARGIN = 50;
 /**
  * Important functions.
  */
-function applyNodeDefaults(settings: Settings, key: string, data: Partial<NodeDisplayData>): NodeDisplayData {
+function applyNodeDefaults<N, E>(
+  settings: Settings<N, E>,
+  key: string,
+  data: Partial<NodeDisplayData>,
+): NodeDisplayData {
   if (!data.hasOwnProperty("x") || !data.hasOwnProperty("y"))
     throw new Error(
       `Sigma: could not find a valid position (x, y) for node "${key}". All your nodes must have a number "x" and "y". Maybe your forgot to apply a layout or your "nodeReducer" is not returning the correct data?`,
@@ -81,7 +85,11 @@ function applyNodeDefaults(settings: Settings, key: string, data: Partial<NodeDi
   return data as NodeDisplayData;
 }
 
-function applyEdgeDefaults(settings: Settings, key: string, data: Partial<EdgeDisplayData>): EdgeDisplayData {
+function applyEdgeDefaults<N, E>(
+  settings: Settings<N, E>,
+  key: string,
+  data: Partial<EdgeDisplayData>,
+): EdgeDisplayData {
   if (!data.color) data.color = settings.defaultEdgeColor;
 
   if (!data.label) data.label = "";
@@ -153,9 +161,12 @@ export type SigmaEvents = SigmaStageEvents & SigmaNodeEvents & SigmaEdgeEvents &
  * @param {HTMLElement} container - DOM container in which to render.
  * @param {object}      settings  - Optional settings.
  */
-export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEmitter<SigmaEvents> {
-  private settings: Settings;
-  private graph: GraphType;
+export default class Sigma<
+  N extends Attributes = Attributes,
+  E extends Attributes = Attributes,
+> extends TypedEventEmitter<SigmaEvents> {
+  private settings: Settings<N, E>;
+  private graph: Graph<N, E>;
   private mouseCaptor: MouseCaptor;
   private touchCaptor: TouchCaptor;
   private container: HTMLElement;
@@ -206,7 +217,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
 
   private camera: Camera;
 
-  constructor(graph: GraphType, container: HTMLElement, settings: Partial<Settings> = {}) {
+  constructor(graph: Graph<N, E>, container: HTMLElement, settings: Partial<Settings> = {}) {
     super();
 
     // Resolving settings
@@ -776,9 +787,9 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
       //   4. We apply the normalization function
 
       // We shallow copy node data to avoid dangerous behaviors from reducers
-      let attr = Object.assign({}, graph.getNodeAttributes(node));
+      let attr = Object.assign({}, graph.getNodeAttributes(node)) as Partial<NodeDisplayData>;
 
-      if (settings.nodeReducer) attr = settings.nodeReducer(node, attr);
+      if (settings.nodeReducer) attr = settings.nodeReducer(node, attr as N);
 
       const data = applyNodeDefaults(this.settings, node, attr);
 
@@ -844,9 +855,9 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
       //   3. We apply our defaults, while running some vital checks
 
       // We shallow copy edge data to avoid dangerous behaviors from reducers
-      let attr = Object.assign({}, graph.getEdgeAttributes(edge));
+      let attr = Object.assign({}, graph.getEdgeAttributes(edge)) as Partial<EdgeDisplayData>;
 
-      if (settings.edgeReducer) attr = settings.edgeReducer(edge, attr);
+      if (settings.edgeReducer) attr = settings.edgeReducer(edge, attr as E);
 
       const data = applyEdgeDefaults(this.settings, edge, attr);
 
@@ -1285,7 +1296,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    *
    * @return {Graph}
    */
-  getGraph(): GraphType {
+  getGraph(): Graph<N, E> {
     return this.graph;
   }
 
@@ -1294,7 +1305,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    *
    * @return {Graph}
    */
-  setGraph(graph: GraphType): void {
+  setGraph(graph: Graph<N, E>): void {
     if (graph === this.graph) return;
 
     // Unbinding handlers on the current graph
@@ -1417,7 +1428,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    *
    * @return {Settings} A copy of the settings collection.
    */
-  getSettings(): Settings {
+  getSettings(): Settings<N, E> {
     return { ...this.settings };
   }
 
@@ -1427,7 +1438,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    * @param  {string} key - The setting key to get.
    * @return {any} The value attached to this setting key or undefined if not found
    */
-  getSetting<K extends keyof Settings>(key: K): Settings[K] | undefined {
+  getSetting<K extends keyof Settings<N, E>>(key: K): Settings<N, E>[K] | undefined {
     return this.settings[key];
   }
 
@@ -1439,7 +1450,7 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    * @param  {any}    value - The value to set.
    * @return {Sigma}
    */
-  setSetting<K extends keyof Settings>(key: K, value: Settings[K]): this {
+  setSetting<K extends keyof Settings<N, E>>(key: K, value: Settings<N, E>[K]): this {
     this.settings[key] = value;
     validateSettings(this.settings);
     this.handleSettingsUpdate();
@@ -1455,7 +1466,10 @@ export default class Sigma<GraphType extends Graph = Graph> extends TypedEventEm
    * @param  {function} updater - The update function.
    * @return {Sigma}
    */
-  updateSetting<K extends keyof Settings>(key: K, updater: (value: Settings[K]) => Settings[K]): this {
+  updateSetting<K extends keyof Settings<N, E>>(
+    key: K,
+    updater: (value: Settings<N, E>[K]) => Settings<N, E>[K],
+  ): this {
     this.settings[key] = updater(this.settings[key]);
     validateSettings(this.settings);
     this.handleSettingsUpdate();

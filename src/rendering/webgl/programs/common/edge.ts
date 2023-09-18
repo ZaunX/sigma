@@ -4,11 +4,15 @@
  *
  * @module
  */
+import { Attributes } from "graphology-types";
 import Sigma from "../../../../sigma";
 import { AbstractProgram, Program } from "./program";
 import { NodeDisplayData, EdgeDisplayData, RenderParams } from "../../../../types";
 
-export abstract class AbstractEdgeProgram extends AbstractProgram {
+export abstract class AbstractEdgeProgram<
+  N extends Attributes = Attributes,
+  E extends Attributes = Attributes,
+> extends AbstractProgram<N, E> {
   abstract process(
     offset: number,
     sourceData: NodeDisplayData,
@@ -17,9 +21,13 @@ export abstract class AbstractEdgeProgram extends AbstractProgram {
   ): void;
 }
 
-export abstract class EdgeProgram<Uniform extends string = string>
-  extends Program<Uniform>
-  implements AbstractEdgeProgram
+export abstract class EdgeProgram<
+    N extends Attributes = Attributes,
+    E extends Attributes = Attributes,
+    Uniform extends string = string,
+  >
+  extends Program<N, E, Uniform>
+  implements AbstractEdgeProgram<N, E>
 {
   process(offset: number, sourceData: NodeDisplayData, targetData: NodeDisplayData, data: EdgeDisplayData): void {
     let i = offset * this.STRIDE;
@@ -41,8 +49,8 @@ export abstract class EdgeProgram<Uniform extends string = string>
   ): void;
 }
 
-export interface EdgeProgramConstructor {
-  new (gl: WebGLRenderingContext, renderer: Sigma): AbstractEdgeProgram;
+export interface EdgeProgramConstructor<N extends Attributes = Attributes, E extends Attributes = Attributes> {
+  new (gl: WebGLRenderingContext, renderer: Sigma<N, E>): AbstractEdgeProgram<N, E>;
 }
 
 /**

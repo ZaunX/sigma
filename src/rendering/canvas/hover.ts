@@ -16,10 +16,10 @@ import drawLabel from "./label";
  * - if the label box is bigger than node size => display a label box that contains the node with a shadow
  * - else node with shadow and the label box
  */
-export default function drawHover(
+export default function drawHover<N, E>(
   context: CanvasRenderingContext2D,
   data: PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color">,
-  settings: Settings,
+  settings: Settings<N, E>,
 ): void {
   const size = settings.labelSize,
     font = settings.labelFont,

@@ -4,17 +4,25 @@
  *
  * @module
  */
+import { Attributes } from "graphology-types";
 import Sigma from "../../../../sigma";
 import { AbstractProgram, Program } from "./program";
 import { NodeDisplayData, RenderParams } from "../../../../types";
 
-export abstract class AbstractNodeProgram extends AbstractProgram {
+export abstract class AbstractNodeProgram<
+  N extends Attributes = Attributes,
+  E extends Attributes = Attributes,
+> extends AbstractProgram<N, E> {
   abstract process(offset: number, data: NodeDisplayData): void;
 }
 
-export abstract class NodeProgram<Uniform extends string = string>
-  extends Program<Uniform>
-  implements AbstractNodeProgram
+export abstract class NodeProgram<
+    N extends Attributes = Attributes,
+    E extends Attributes = Attributes,
+    Uniform extends string = string,
+  >
+  extends Program<N, E, Uniform>
+  implements AbstractNodeProgram<N, E>
 {
   process(offset: number, data: NodeDisplayData): void {
     let i = offset * this.STRIDE;
@@ -31,8 +39,8 @@ export abstract class NodeProgram<Uniform extends string = string>
   abstract processVisibleItem(i: number, data: NodeDisplayData): void;
 }
 
-export interface NodeProgramConstructor {
-  new (gl: WebGLRenderingContext, renderer: Sigma): AbstractNodeProgram;
+export interface NodeProgramConstructor<N extends Attributes = Attributes, E extends Attributes = Attributes> {
+  new (gl: WebGLRenderingContext, renderer: Sigma<N, E>): AbstractNodeProgram;
 }
 
 /**

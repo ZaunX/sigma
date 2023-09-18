@@ -5,12 +5,13 @@
  * Class representing a single WebGL program used by sigma's WebGL renderer.
  * @module
  */
+import { Attributes } from "graphology-types";
 import type Sigma from "../../../../sigma";
 import type { RenderParams } from "../../../../types";
 import { canUse32BitsIndices } from "../../../../utils";
 import { loadVertexShader, loadFragmentShader, loadProgram } from "../../shaders/utils";
 
-const SIZE_FACTOR_PER_ATTRIBUTE_TYPE = {
+const SIZE_FACTOR_PER_ATTRIBUTE_TYPE: Record<number, number> = {
   [WebGL2RenderingContext.BOOL]: 1,
   [WebGL2RenderingContext.BYTE]: 1,
   [WebGL2RenderingContext.UNSIGNED_BYTE]: 1,
@@ -37,14 +38,20 @@ export interface ProgramDefinition<Uniform extends string = string> {
   ATTRIBUTES: Array<ProgramAttributeSpecification>;
 }
 
-export abstract class AbstractProgram {
+export abstract class AbstractProgram<N extends Attributes = Attributes, E extends Attributes = Attributes> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor(_gl: WebGLRenderingContext, _renderer: Sigma) {}
+  constructor(_gl: WebGLRenderingContext, _renderer: Sigma<N, E>) {}
   abstract reallocate(capacity: number): void;
   abstract render(params: RenderParams): void;
 }
 
-export abstract class Program<Uniform extends string = string> implements AbstractProgram, ProgramDefinition {
+export abstract class Program<
+    N extends Attributes = Attributes,
+    E extends Attributes = Attributes,
+    Uniform extends string = string,
+  >
+  implements AbstractProgram<N, E>, ProgramDefinition
+{
   VERTICES: number;
   ARRAY_ITEMS_PER_VERTEX: number;
   VERTEX_SHADER_SOURCE: string;

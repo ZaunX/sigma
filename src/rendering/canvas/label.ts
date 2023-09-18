@@ -8,10 +8,10 @@
 import { Settings } from "../../settings";
 import { NodeDisplayData, PartialButFor } from "../../types";
 
-export default function drawLabel(
+export default function drawLabel<N, E>(
   context: CanvasRenderingContext2D,
   data: PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color">,
-  settings: Settings,
+  settings: Settings<N, E>,
 ): void {
   if (!data.label) return;
 

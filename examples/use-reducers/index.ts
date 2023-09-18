@@ -9,6 +9,16 @@ import { Coordinates, EdgeDisplayData, NodeDisplayData } from "sigma/types";
 import Graph from "graphology";
 
 import data from "./data.json";
+interface NodeData {
+  x: number;
+  y: number;
+  size: number;
+  label: string;
+  color: string;
+}
+interface EdgeData {
+  size: number;
+}
 
 // Retrieve some useful DOM elements:
 const container = document.getElementById("sigma-container") as HTMLElement;
@@ -16,7 +26,7 @@ const searchInput = document.getElementById("search-input") as HTMLInputElement;
 const searchSuggestions = document.getElementById("suggestions") as HTMLDataListElement;
 
 // Instantiate sigma:
-const graph = new Graph();
+const graph = new Graph<NodeData, EdgeData>();
 graph.import(data);
 const renderer = new Sigma(graph, container);
 
@@ -116,7 +126,6 @@ renderer.on("leaveNode", () => {
 // 3. If there is a hovered node, all non-neighbor nodes are greyed
 renderer.setSetting("nodeReducer", (node, data) => {
   const res: Partial<NodeDisplayData> = { ...data };
-
   if (state.hoveredNeighbors && !state.hoveredNeighbors.has(node) && state.hoveredNode !== node) {
     res.label = "";
     res.color = "#f6f6f6";

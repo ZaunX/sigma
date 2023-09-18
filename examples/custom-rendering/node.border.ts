@@ -12,6 +12,7 @@
  * every GPU.
  * @module
  */
+import { Attributes } from "graphology-types";
 import { NodeDisplayData, RenderParams } from "sigma/types";
 import { floatColor } from "sigma/utils";
 import { NodeProgram } from "sigma/rendering/webgl/programs/common/node";
@@ -22,7 +23,10 @@ const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
 const UNIFORMS = ["u_sizeRatio", "u_pixelRatio", "u_matrix"] as const;
 
-export default class NodeBorderProgram extends NodeProgram<typeof UNIFORMS[number]> {
+export default class NodeBorderProgram<
+  N extends Attributes = Attributes,
+  E extends Attributes = Attributes,
+> extends NodeProgram<N, E, (typeof UNIFORMS)[number]> {
   getDefinition() {
     return {
       VERTICES: 1,

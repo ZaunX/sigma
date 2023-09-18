@@ -6,6 +6,7 @@
  * the classic colored disc.
  * @module
  */
+import { Attributes } from "graphology-types";
 import { Coordinates, Dimensions, NodeDisplayData, RenderParams } from "../../../types";
 import { floatColor } from "../../../utils";
 import VERTEX_SHADER_SOURCE from "../shaders/node.image.vert.glsl";
@@ -200,7 +201,10 @@ export default function getNodeImageProgram(): NodeProgramConstructor {
 
   const UNIFORMS = ["u_sizeRatio", "u_pixelRatio", "u_matrix", "u_atlas"] as const;
 
-  return class NodeImageProgram extends NodeProgram<typeof UNIFORMS[number]> {
+  return class NodeImageProgram<
+    N extends Attributes = Attributes,
+    E extends Attributes = Attributes,
+  > extends NodeProgram<N, E, (typeof UNIFORMS)[number]> {
     getDefinition() {
       return {
         VERTICES: 1,

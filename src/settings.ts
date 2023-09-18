@@ -22,7 +22,7 @@ import { NodeProgramConstructor } from "./rendering/webgl/programs/common/node";
  * Sigma.js settings
  * =================================
  */
-export interface Settings {
+export interface Settings<N extends Attributes = Attributes, E extends Attributes = Attributes> {
   // Performance
   hideEdgesOnMove: boolean;
   hideLabelsOnMove: boolean;
@@ -52,8 +52,8 @@ export interface Settings {
   labelGridCellSize: number;
   labelRenderedSizeThreshold: number;
   // Reducers
-  nodeReducer: null | ((node: string, data: Attributes) => Partial<NodeDisplayData>);
-  edgeReducer: null | ((edge: string, data: Attributes) => Partial<EdgeDisplayData>);
+  nodeReducer: null | ((node: string, data: N) => Partial<NodeDisplayData>);
+  edgeReducer: null | ((edge: string, data: E) => Partial<EdgeDisplayData>);
   // Features
   zIndex: boolean;
   minCameraRatio: null | number;
@@ -66,9 +66,9 @@ export interface Settings {
   allowInvalidContainer: boolean;
 
   // Program classes
-  nodeProgramClasses: { [type: string]: NodeProgramConstructor };
-  nodeHoverProgramClasses: { [type: string]: NodeProgramConstructor };
-  edgeProgramClasses: { [type: string]: EdgeProgramConstructor };
+  nodeProgramClasses: { [type: string]: NodeProgramConstructor<N, E> };
+  nodeHoverProgramClasses: { [type: string]: NodeProgramConstructor<N, E> };
+  edgeProgramClasses: { [type: string]: EdgeProgramConstructor<N, E> };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -135,7 +135,10 @@ export const DEFAULT_EDGE_PROGRAM_CLASSES = {
   line: EdgeRectangleProgram,
 };
 
-export function validateSettings(settings: Settings): void {
+export function validateSettings<
+  NodeAttributes extends Attributes = Attributes,
+  EdgeAttributes extends Attributes = Attributes,
+>(settings: Settings<NodeAttributes, EdgeAttributes>): void {
   if (typeof settings.labelDensity !== "number" || settings.labelDensity < 0) {
     throw new Error("Settings: invalid `labelDensity`. Expecting a positive number.");
   }
@@ -148,8 +151,10 @@ export function validateSettings(settings: Settings): void {
   }
 }
 
-export function resolveSettings(settings: Partial<Settings>): Settings {
-  const resolvedSettings = assign({}, DEFAULT_SETTINGS, settings);
+export function resolveSettings<N extends Attributes = Attributes, E extends Attributes = Attributes>(
+  settings: Partial<Settings<N, E>>,
+): Settings<N, E> {
+  const resolvedSettings = assign({}, DEFAULT_SETTINGS as Settings<N, E>, settings);
 
   resolvedSettings.nodeProgramClasses = assign({}, DEFAULT_NODE_PROGRAM_CLASSES, resolvedSettings.nodeProgramClasses);
   resolvedSettings.edgeProgramClasses = assign({}, DEFAULT_EDGE_PROGRAM_CLASSES, resolvedSettings.edgeProgramClasses);

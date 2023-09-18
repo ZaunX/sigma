@@ -8,12 +8,12 @@
 import { Settings } from "../../settings";
 import { EdgeDisplayData, NodeDisplayData, PartialButFor } from "../../types";
 
-export default function drawEdgeLabel(
+export default function drawEdgeLabel<N, E>(
   context: CanvasRenderingContext2D,
   edgeData: PartialButFor<EdgeDisplayData, "label" | "color" | "size">,
   sourceData: PartialButFor<NodeDisplayData, "x" | "y" | "size">,
   targetData: PartialButFor<NodeDisplayData, "x" | "y" | "size">,
-  settings: Settings,
+  settings: Settings<N, E>,
 ): void {
   const size = settings.edgeLabelSize,
     font = settings.edgeLabelFont,

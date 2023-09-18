@@ -15,6 +15,7 @@
  * the CPU & GPU (normals are computed on the CPU side).
  * @module
  */
+import { Attributes } from "graphology-types";
 import { NodeDisplayData, EdgeDisplayData, RenderParams } from "../../../types";
 import { floatColor } from "../../../utils";
 import { EdgeProgram } from "./common/edge";
@@ -25,7 +26,10 @@ const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
 const UNIFORMS = ["u_matrix", "u_zoomRatio", "u_sizeRatio", "u_correctionRatio"] as const;
 
-export default class EdgeRectangleProgram extends EdgeProgram<typeof UNIFORMS[number]> {
+export default class EdgeRectangleProgram<
+  N extends Attributes = Attributes,
+  E extends Attributes = Attributes,
+> extends EdgeProgram<N, E, (typeof UNIFORMS)[number]> {
   getDefinition() {
     return {
       VERTICES: 4,
