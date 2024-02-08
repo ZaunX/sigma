@@ -7,6 +7,7 @@
  */
 import Graph, { Attributes } from "graphology-types";
 import isGraph from "graphology-utils/is-graph";
+
 import { CameraState, Coordinates, Dimensions, Extent, PlainObject } from "../types";
 import { multiply, identity, scale, rotate, translate, multiplyVec2 } from "./matrices";
 import { HTML_COLORS } from "./data";

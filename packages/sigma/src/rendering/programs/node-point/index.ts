@@ -13,12 +13,17 @@ import { NodeProgram } from "../../node";
 import VERTEX_SHADER_SOURCE from "./vert.glsl";
 import FRAGMENT_SHADER_SOURCE from "./frag.glsl";
 import { ProgramInfo } from "../../program";
+import { Attributes } from "graphology-types";
 
 const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
 const UNIFORMS = ["u_sizeRatio", "u_pixelRatio", "u_matrix"] as const;
 
-export default class NodePointProgram extends NodeProgram<(typeof UNIFORMS)[number]> {
+export default class NodePointProgram<
+  N extends Attributes,
+  E extends Attributes,
+  G extends Attributes,
+> extends NodeProgram<N, E, G, (typeof UNIFORMS)[number]> {
   getDefinition() {
     return {
       VERTICES: 1,

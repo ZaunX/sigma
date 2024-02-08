@@ -11,12 +11,17 @@ import { EdgeProgram } from "../../edge";
 import VERTEX_SHADER_SOURCE from "./vert.glsl";
 import FRAGMENT_SHADER_SOURCE from "./frag.glsl";
 import { ProgramInfo } from "../../program";
+import { Attributes } from "graphology-types";
 
 const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
 const UNIFORMS = ["u_matrix", "u_sizeRatio", "u_correctionRatio"] as const;
 
-export default class EdgeArrowHeadProgram extends EdgeProgram<(typeof UNIFORMS)[number]> {
+export default class EdgeArrowHeadProgram<
+  N extends Attributes,
+  E extends Attributes,
+  G extends Attributes,
+> extends EdgeProgram<N, E, G, (typeof UNIFORMS)[number]> {
   getDefinition() {
     return {
       VERTICES: 3,

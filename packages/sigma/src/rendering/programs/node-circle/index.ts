@@ -14,12 +14,17 @@ import { NodeProgram } from "../../node";
 import VERTEX_SHADER_SOURCE from "./vert.glsl";
 import FRAGMENT_SHADER_SOURCE from "./frag.glsl";
 import { ProgramInfo } from "../../program";
+import { Attributes } from "graphology-types";
 
 const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
 const UNIFORMS = ["u_sizeRatio", "u_correctionRatio", "u_matrix"] as const;
 
-export default class NodeCircleProgram extends NodeProgram<(typeof UNIFORMS)[number]> {
+export default class NodeCircleProgram<
+  N extends Attributes,
+  E extends Attributes,
+  G extends Attributes,
+> extends NodeProgram<N, E, G, (typeof UNIFORMS)[number]> {
   static readonly ANGLE_1 = 0;
   static readonly ANGLE_2 = (2 * Math.PI) / 3;
   static readonly ANGLE_3 = (4 * Math.PI) / 3;

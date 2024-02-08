@@ -1,3 +1,4 @@
+import { Attributes } from "graphology-types";
 import Sigma from "sigma";
 import { floatColor } from "sigma/utils";
 import { NodeProgram } from "sigma/rendering/node";
@@ -11,21 +12,22 @@ import { Atlas, DEFAULT_TEXTURE_MANAGER_OPTIONS, TextureManager, TextureManagerO
 
 const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
-interface CreateNodeImageProgramOptions extends TextureManagerOptions {
+interface CreateNodeImageProgramOptions<N extends Attributes, E extends Attributes, G extends Attributes>
+  extends TextureManagerOptions {
   // - If "background", color will be used to color full node behind the image.
   // - If "color", color will be used to color image pixels (for pictograms)
   drawingMode: "background" | "color";
   // If true, the images are always cropped to the circle
   keepWithinCircle: boolean;
   // Allows overriding drawLabel and drawHover returned class static methods.
-  drawLabel: NodeLabelDrawingFunction | undefined;
-  drawHover: NodeLabelDrawingFunction | undefined;
+  drawLabel: NodeLabelDrawingFunction<N, E, G> | undefined;
+  drawHover: NodeLabelDrawingFunction<N, E, G> | undefined;
   // The padding should be expressed as a [0, 1] percentage.
   // A padding of 0.05 will always be 5% of the diameter of a node.
   padding: number;
 }
 
-const DEFAULT_CREATE_NODE_IMAGE_OPTIONS: CreateNodeImageProgramOptions = {
+const DEFAULT_CREATE_NODE_IMAGE_OPTIONS: CreateNodeImageProgramOptions<Attributes, Attributes, Attributes> = {
   ...DEFAULT_TEXTURE_MANAGER_OPTIONS,
   drawingMode: "background",
   keepWithinCircle: true,
@@ -50,7 +52,9 @@ const UNIFORMS = [
  * hovered nodes (to prevent some flickering, mostly), this program must be
  * "built" for each sigma instance:
  */
-export default function getNodeImageProgram(options?: Partial<CreateNodeImageProgramOptions>): NodeProgramType {
+export default function getNodeImageProgram<N extends Attributes, E extends Attributes, G extends Attributes>(
+  options?: Partial<CreateNodeImageProgramOptions<N, E, G>>,
+): NodeProgramType<N, E, G> {
   const {
     drawHover,
     drawLabel,
@@ -58,9 +62,11 @@ export default function getNodeImageProgram(options?: Partial<CreateNodeImagePro
     keepWithinCircle,
     padding,
     ...textureManagerOptions
-  }: CreateNodeImageProgramOptions = {
+  }: CreateNodeImageProgramOptions<N, E, G> = {
     ...DEFAULT_CREATE_NODE_IMAGE_OPTIONS,
     ...(options || {}),
+    drawLabel: undefined,
+    drawHover: undefined,
   };
 
   /**
@@ -70,7 +76,7 @@ export default function getNodeImageProgram(options?: Partial<CreateNodeImagePro
    */
   const textureManager = new TextureManager(textureManagerOptions);
 
-  return class NodeImageProgram extends NodeProgram<(typeof UNIFORMS)[number]> {
+  return class NodeImageProgram extends NodeProgram<N, E, G, (typeof UNIFORMS)[number]> {
     static readonly ANGLE_1 = 0;
     static readonly ANGLE_2 = (2 * Math.PI) / 3;
     static readonly ANGLE_3 = (4 * Math.PI) / 3;
@@ -103,7 +109,7 @@ export default function getNodeImageProgram(options?: Partial<CreateNodeImagePro
     latestRenderParams?: RenderParams;
     textureManagerCallback: () => void;
 
-    constructor(gl: WebGLRenderingContext, pickingBuffer: WebGLFramebuffer | null, renderer: Sigma) {
+    constructor(gl: WebGLRenderingContext, pickingBuffer: WebGLFramebuffer | null, renderer: Sigma<N, E, G>) {
       super(gl, pickingBuffer, renderer);
 
       this.textureManagerCallback = () => {
